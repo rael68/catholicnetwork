@@ -1,0 +1,73 @@
+{% extends "blog_ra68/base.html" %}
+{% load humanize %}
+
+{% block title %}Cloister Lantern{% endblock %}
+{% block meta_description %}Explore orthodox Catholic faith, Church history, and insightful articles.{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero mb-5 text-center py-5 bg-light rounded-4">
+    <h1 class="display-4 fw-bold mb-3">Welcome to Cloister</h1>
+    <p class="lead mb-4">Defending the faith with truth, history, and clarity in a chaotic world.</p>
+    <a href="{% url 'blog:post_list' %}" class="btn btn-primary btn-lg">Explore Articles</a>
+</section>
+
+<!-- Featured Posts Grid -->
+<div class="row g-4 mb-5">
+    {% for post in posts %}
+    <div class="col-md-6 col-lg-4">
+        <article class="card h-100 shadow-sm overflow-hidden">
+            {% if post.featured_image %}
+            <img src="{{ post.featured_image.url }}" class="card-img-top" alt="{{ post.title }}" style="height: 200px; object-fit: cover;" loading="lazy">
+            {% endif %}
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title">
+                    <a href="{{ post.get_absolute_url }}" class="text-decoration-none text-dark fw-semibold">{{ post.title|truncatewords:8 }}</a>
+                </h5>
+                <p class="text-muted small mb-2">
+                    <i class="bi bi-calendar3"></i> {{ post.publish_date|date:"M d, Y" }} •
+                    <i class="bi bi-person"></i> {{ post.author.get_full_name|default:post.author.username }}
+                </p>
+                {% if post.category %}
+                <span class="badge bg-primary mb-2">{{ post.category.name }}</span>
+                {% endif %}
+                <p class="card-text flex-grow-1">{{ post.excerpt|default:"Discover the full story..."|truncatewords:25 }}</p>
+                <div class="mt-auto">
+                    <a href="{{ post.get_absolute_url }}" class="btn btn-outline-primary w-100">Read More</a>
+                </div>
+            </div>
+        </article>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center">
+        <p class="lead">No posts yet. Stay tuned for insightful Catholic content!</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if is_paginated %}
+<nav aria-label="Post pagination" class="d-flex justify-content-center">
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+        {% endif %}
+        <li class="page-item active"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+<!-- Sidebar Teaser -->
+<aside class="row mt-5">
+    <div class="col-lg-8">
+        <h3 class="mb-3">Recent Reads</h3>
+        <p>Deep dives into faith and history—perfect for reflection.</p>
+    </div>
+    <div class="col-lg-4 text-end">
+        <a href="{% url 'blog:post_list' %}" class="btn btn-outline-primary">View All</a>
+    </div>
+</aside>
+{% endblock %}

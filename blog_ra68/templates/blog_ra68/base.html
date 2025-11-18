@@ -1,0 +1,107 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="{% if request.COOKIES.theme == 'dark' %}dark{% else %}light{% endif %}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}The Cloister Lantern{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Orthodox Catholic faith, history, and truth.{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}{{ block.super }}{% endblock %}">
+    <!--<meta property="og:description" content="{"% block og_description %}{"% block meta_description %}{"% endblock %}"> -->
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:image" content="{% block og_image %}{% if post.featured_image %}{{ post.featured_image.url }}{% else %}{% static 'img/default.jpg' %}{% endif %}{% endblock %}">
+    <link rel="icon" href="{% static 'img/favicon.ico' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Reading Progress Bar -->
+    <div class="progress-bar" id="readingProgress"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="/">ACT Network</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    {% for entry in main_menu %}
+                        {% with item=entry.item children=entry.children %}
+                            {% if item.children.exists %}
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        {{ item.title }}
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        {% for child in children %}
+                                            <li><a class="dropdown-item" href="{{ child.get_url }}">{{ child.title }}</a></li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                            {% else %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ item.get_url }}">{{ item.title }}</a>
+                                </li>
+                            {% endif %}
+                        {% endwith %}
+                    {% endfor %}
+                    <!-- Static Essentials for AdSense 
+                    <li class="nav-item"><a class="nav-link" href="{'% url 'about' %}">iAbout</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{'% url 'contact' %}">Contact</a></li> -->
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    
+                </ul>
+                <form class="d-flex me-3" role="search" action="{'% url 'blog:post_list' %}" method="get">
+                    <input class="form-control form-control-sm me-2" type="search" name="q" placeholder="Search posts..." aria-label="Search">
+                    <button class="btn btn-outline-light btn-sm" type="submit"><i class="bi bi-search"></i></button>
+                </form>
+                <div class="form-check form-switch text-light ms-3">
+                    <input class="form-check-input" type="checkbox" id="darkModeToggle" {% if request.COOKIES.theme == 'dark' %}checked{% endif %}>
+                    <label class="form-check-label" for="darkModeToggle">
+                        <i class="bi bi-moon-stars-fill"></i> Dark Mode
+                    </label>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container my-5">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer (AdSense Required) -->
+    <footer class="bg-dark text-light py-4 mt-auto">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p>&copy; 2025 ACT Network. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p>
+                        <a href="{% url 'about' %}" class="text-light">About</a> •
+                        <a href="{% url 'contact' %}" class="text-light">Contact</a> •
+                        <a href="{% url 'privacy' %}" class="text-light">Privacy Policy</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" title="Back to Top">
+        <i class="bi bi-arrow-up-circle"></i>
+    </button>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,122 @@
+{% extends "blog_ra68/base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}{{ post.title }} - ACT Network{% endblock %}
+<!-- {"% block meta_description %}{"{ post.excerpt|default:post.content|striptags|truncatewords:30 }}{"% endblock %} -->
+{% block og_title %}{{ post.title }}{% endblock %}
+{% block og_description %}{{ post.excerpt|default:post.content|striptags|truncatewords:30 }}{% endblock %}
+<!-- {'% block og_image %}{'{ post.featured_image.url }}{'% endblock %} -->
+<!-- Featured Image 
+{'% if post.featured_image %}
+<img src="{'{ post.featured_image.url }}" class="img-fluid rounded mb-4" alt="{'{ post.title }}" loading="lazy">
+{'% endif %}
+-->
+
+{% block extra_css %}
+<style>
+    .post-container { max-width: 800px; margin: 0 auto; }
+    .post-header { text-align: center; margin-bottom: 3rem; }
+    .post-title { font-size: 2.5rem; line-height: 1.2; margin-bottom: 1rem; }
+    .post-meta { font-size: 0.95rem; color: #6c757d; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+    .post-content { font-size: 1.15rem; line-height: 1.8; }
+    .post-content p { margin-bottom: 1.5rem; text-align: justify; hyphens: auto; }
+    .post-content h2, .post-content h3 { margin-top: 2.5rem; margin-bottom: 1rem; font-weight: 600; }
+    .post-content h2 { font-size: 1.8rem; border-left: 4px solid #0d6efd; padding-left: 1rem; }
+    .post-content blockquote { border-left: 4px solid #0d6efd; padding: 1rem 1.5rem; background: #f8f9fa; font-style: italic; margin: 2rem 0; }
+    .post-content img, .post-content video { max-width: 100%; height: auto; border-radius: 8px; margin: 1.5rem 0; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .post-content iframe { width: 100%; height: 450px; border-radius: 8px; margin: 1.5rem 0; }
+    .drop-cap:first-letter { float: left; font-size: 4rem; line-height: 0.8; margin: 0.2rem 0.5rem 0 0; font-weight: bold; color: #0d6efd; }
+    .author-bio { background: #f8f9fa; border-radius: 8px; padding: 1.5rem; margin: 3rem 0; display: flex; align-items: center; gap: 1rem; }
+    .author-avatar { width: 60px; height: 60px; border-radius: 50%; }
+    .related-posts { margin-top: 3rem; }
+    .related-posts h3 { margin-bottom: 1.5rem; }
+    .related-card { transition: transform 0.2s; }
+    .related-card:hover { transform: translateY(-5px); }
+    .share-buttons { display: flex; gap: 0.5rem; justify-content: center; margin: 2rem 0; }
+    .share-btn { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; text-decoration: none; transition: transform 0.2s; }
+    .share-btn:hover { transform: scale(1.1); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="post-container">
+    <!-- Header -->
+    <header class="post-header">
+        <h1 class="post-title">{{ post.title }}</h1>
+        <div class="post-meta">
+            <span><i class="bi bi-person"></i> {{ post.author.get_full_name|default:post.author.username }}</span>
+            <span><i class="bi bi-calendar3"></i> {{ post.publish_date|date:"F j, Y" }}</span>
+            {% if post.category %}
+            <span><i class="bi bi-tag"></i> <a href="{% url 'blog:category_posts' post.category.slug %}">{{ post.category.name }}</a></span>
+            {% endif %}
+            <!--
+            <span><i class="bi bi-clock"></i> {'{ post.content|striptags|wordcount|intcomma }} words • ~{'{ post.content|striptags|wordcount|add:199|floatformat:0|add:0|div:200 }} min read</span> -->
+            <span><i class="bi bi-clock"></i> {{ word_count|intcomma }} words • ~{{ read_time }} min read
+            </span>
+        </div>
+    </header>
+
+    <!-- Featured Media 
+    {'% if post.featured_image %}
+    <img src="{'{ post.featured_image.url }}" class="img-fluid rounded mb-4" alt="{'{ post.title }}" loading="lazy">
+    {'% endif %} -->
+
+    <!-- Share Buttons -->
+    <div class="share-buttons">
+        <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ post.title|urlencode }}" class="share-btn bg-primary" title="Share on X"><i class="bi bi-twitter"></i></a>
+        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" class="share-btn bg-primary" title="Share on Facebook"><i class="bi bi-facebook"></i></a>
+        <a href="mailto:?subject={{ post.title|urlencode }}&body={{ request.build_absolute_uri }}" class="share-btn bg-secondary" title="Email"><i class="bi bi-envelope"></i></a>
+    </div>
+
+    <!-- Content -->
+    <div class="post-content drop-cap">
+        {{ post.content|safe }}
+    </div>
+
+    <!-- Author Bio -->
+    <section class="author-bio">
+        <img src="{% static 'img/default-avatar.jpg' %}" alt="{{ post.author }}" class="author-avatar">
+        <div>
+            <h5>{{ post.author.get_full_name|default:post.author.username }}</h5>
+            <p class="mb-0">Catholic writer and defender of orthodoxy.</p>
+        </div>
+    </section>
+
+    <!-- Related Posts -->
+    <section class="related-posts">
+        <h3>Related Articles</h3>
+        <div class="row g-3">
+            {% for related in posts|slice:":3" %}
+            <div class="col-md-4">
+                <a href="{{ related.get_absolute_url }}" class="related-card card h-100 text-decoration-none">
+                    <div class="card-body">
+                        <h6 class="card-title text-dark">{{ related.title|truncatewords:6 }}</h6>
+                        <p class="card-text text-muted small">{{ related.publish_date|date:"M d" }}</p>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <p>No related posts yet.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Back Button -->
+    <div class="text-center mt-4">
+        <a href="{% url 'blog:post_list' %}" class="btn btn-outline-primary btn-lg">← Back to All Posts</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Smooth scroll for anchors in content
+    document.querySelectorAll('.post-content a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+</script>
+{% endblock %}
